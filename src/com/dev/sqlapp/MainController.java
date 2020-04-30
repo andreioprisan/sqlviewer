@@ -1,3 +1,17 @@
+/** 
+* SQL App - JavaFX MySQL Query App
+* 
+* This file:
+* The main entry point for the app.
+* This file maints the main scren and 
+* sets a full sized app that users
+*  would get loaded in after connect.
+* 
+* @author  Andrei Oprisan 
+* @version 1.0 
+* @since   2020-04-30
+*/
+
 package com.dev.sqlapp;
 
 import javafx.application.Platform;
