@@ -2,10 +2,15 @@
 * SQL App - JavaFX MySQL Query App
 * 
 * This file:
-* The main entry point for the app.
-* This file maints the main scren and 
-* sets a full sized app that users
-*  would get loaded in after connect.
+* Provides the following core functionality:
+* 1. create new db connections
+* 2. close db connections
+* 3. menubar about dialog
+* 4. menubar exit dialog
+* 5. populate databases and tables view based on available data from db connection
+* 6. run table data query by default on table view
+* 7. provide random query execution functionality with 
+*    view on select, or exec stats on other statements
 * 
 * @author  Andrei Oprisan 
 * @version 1.0 
@@ -116,7 +121,7 @@ public class MainController implements Initializable {
     }
 
     /**
-     * handler for close action on the menu
+     * Handler for close action on the menu
      * @param event
      */
     @FXML
@@ -139,7 +144,7 @@ public class MainController implements Initializable {
     @FXML
     private void handleAboutAction(final ActionEvent event)
     {
-        Main.info("SQLViewer", "SQLViewer with JavaFX. By Andrei Oprisan");
+        Main.info("SQLViewer", "SQL Query App with JavaFX, v1.0. (c) 2020 Andrei Oprisan");
     }
 
     /**
@@ -160,7 +165,7 @@ public class MainController implements Initializable {
     }
 
     /**
-     * when db connected successfully, it loads database
+     * when db connected successfully, loads databases
      */
     public void onDBConnect()
     {
@@ -255,6 +260,7 @@ public class MainController implements Initializable {
             return;
         }
 
+        // be default we'll show the table contents with predefined query and load in table view
         String sql = "SELECT * FROM " + this.curDb + "." + this.curTable;
         txtSqlQuery.setText(sql);
 
@@ -262,6 +268,9 @@ public class MainController implements Initializable {
         //test();
     }
 
+    /**
+     * Clears all input fields 
+     */
     private void clearAll() {
 
         listviewDB.getItems().clear();
@@ -273,29 +282,29 @@ public class MainController implements Initializable {
     }
 
     /**
-     * handler when click run query button
+     * Handler when user clicks run query button 
      */
     public void onRunQuery()
     {
         try {
+        	// clear table view and stats
             tableviewResult.getItems().clear();
             tableviewResult.getColumns().clear();
-
+            // get a db connection to put string into
             Statement stmt = Main.conn.createStatement();
             String sql = txtSqlQuery.getText();
-
-            // if user run SELECT query
+            // if user run SELECT query, do some query optimization
             if(sql.toLowerCase().startsWith("select")) {
-
+            	// log how long query took to execute
                 long start_time = System.currentTimeMillis();
-
+                // execute statement
                 ResultSet resultset = stmt.executeQuery(sql);
                 resultset = stmt.getResultSet();
-
+                // log query end time
                 long end_time = System.currentTimeMillis();
-
+                // results meta
                 ResultSetMetaData rsmd = resultset.getMetaData();
-
+                // iterate over column metadata and show it in appropriate columns
                 for (int i = 1; i <= rsmd.getColumnCount(); i++) {
                     final int j = i;
                     TableColumn<String[], String> column = new TableColumn<>();
@@ -316,9 +325,10 @@ public class MainController implements Initializable {
                     tableviewResult.getColumns().add(column);
                 }
 
+                // put query results in array list
                 int r = 0;
                 ArrayList<String[]> data = new ArrayList<String[]>();
-
+                
                 while (resultset.next()) {
                     String[] row = new String[rsmd.getColumnCount()];
                     for (int i = 1; i <= rsmd.getColumnCount(); i++) {
@@ -328,12 +338,15 @@ public class MainController implements Initializable {
                     r++;
                 }
 
+                // print results table
                 tableviewResult.getItems().addAll(data);
+                // show some stats on query
                 lblResult.setText("Result: Total " + r + " records, Elapsed Time: " + ((end_time - start_time)) + " ms");
-
+                // close db connection
                 resultset.close();
-            }
-            else { // insert, update, delete query processing
+            } else { 
+            	// insert, update, delete query processing
+            	// in this case we don't have any results in the table, just execute query and show stats
                 long start_time = System.currentTimeMillis();
 
                 int r = stmt.executeUpdate(sql);

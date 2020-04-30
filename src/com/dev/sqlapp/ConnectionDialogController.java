@@ -1,3 +1,14 @@
+/** 
+* SQL App - JavaFX MySQL Query App
+* 
+* This file provides for core connection field validation
+* and main db connection that is then used in MainController.
+* 
+* @author  Andrei Oprisan 
+* @version 1.0 
+* @since   2020-04-30
+*/
+
 package com.dev.sqlapp;
 
 import javafx.event.ActionEvent;
